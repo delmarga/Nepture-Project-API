@@ -12,5 +12,5 @@ app.use(express.urlencoded({ extended: false }));
 app.use("/api/v1", apiRoute);
 
 // App Server Connection
-const PORT = process.env.POST || 5000;
+const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`Server is running on port ${PORT}!`));
