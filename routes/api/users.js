@@ -43,4 +43,46 @@ router.post("/signup", async (req, res) => {
   }
 });
 
+// UPDATE User
+router.put("/:id", (req, res) => {
+  db("users")
+    .where({ id: req.params.id })
+    .update({
+      firstName: req.body.firstName,
+      lastName: req.body.lastName,
+      email: req.body.email,
+      password: req.params.password,
+    })
+    .returning("*")
+    .then(() => {
+      res.json({ message: "Updated." });
+    });
+});
+
+// DELETE User
+router.delete("/:id", (req, res) => {
+  db("users")
+    .where({ id: req.params.id })
+    .del()
+    .then(() => {
+      res.json({ message: "Deleted." });
+    });
+});
+
+// Login User
+router.post("/login", (req, res) => {
+  db.select("id", "email", "password")
+    .from("users")
+    .where("email", "=", req.body.email)
+    .then((data) => {
+      bcrypt.compare(req.body.password, data[0].password).then((isMatch) => {
+        if (isMatch) {
+          res.json("Allowed.");
+        } else {
+          res.json("Not Allowed");
+        }
+      });
+    });
+});
+
 module.exports = router;
