@@ -24,20 +24,29 @@ router.get("/:id", (req, res) => {
 });
 
 // Register User (CREATE)
-router.post("/signup", async (req, res) => {
+router.post("/signup", async (req, res, next) => {
+  const { firstName, lastName, email, password } = req.body;
+
   try {
-    const hashedPassword = await bcrypt.hash(req.body.password, 10);
-    db("users")
-      .insert({
-        firstName: req.body.firstName,
-        lastName: req.body.lastName,
-        email: req.body.email,
-        password: hashedPassword,
-      })
-      .returning("*")
-      .then((user) => {
-        res.json(user);
-      });
+    const existingEmail = await db("users").where("email", email).first();
+    console.log(existingEmail);
+
+    if (!existingEmail) {
+      const hashedPassword = await bcrypt.hash(password, 10);
+      db("users")
+        .insert({
+          firstName,
+          lastName,
+          email,
+          password: hashedPassword,
+        })
+        .returning("*")
+        .then((user) => {
+          res.json(user), console.log("User created!");
+        });
+    } else {
+      next(new Error("Email in use"));
+    }
   } catch {
     res.status(500).send();
   }
