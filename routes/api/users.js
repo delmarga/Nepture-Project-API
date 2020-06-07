@@ -54,13 +54,14 @@ router.post("/signup", async (req, res, next) => {
 
 // UPDATE User
 router.put("/:id", (req, res) => {
+  const { firstName, lastName, email, password } = req.body;
   db("users")
     .where({ id: req.params.id })
     .update({
-      firstName: req.body.firstName,
-      lastName: req.body.lastName,
-      email: req.body.email,
-      password: req.params.password,
+      firstName,
+      lastName,
+      email,
+      password,
     })
     .returning("*")
     .then(() => {
@@ -80,11 +81,13 @@ router.delete("/:id", (req, res) => {
 
 // Login User
 router.post("/login", (req, res) => {
+  const { email, password } = req.body;
+
   db.select("id", "email", "password")
     .from("users")
-    .where("email", "=", req.body.email)
+    .where("email", email)
     .then((data) => {
-      bcrypt.compare(req.body.password, data[0].password).then((isMatch) => {
+      bcrypt.compare(password, data[0].password).then((isMatch) => {
         if (isMatch) {
           res.json("Allowed.");
         } else {
